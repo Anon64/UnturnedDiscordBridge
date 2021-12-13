@@ -9,16 +9,3 @@ Edit the config.yaml file in `plugins/Anon64.UnturnedDiscordBridge/config.yaml` 
 2. Extract to folder
 3. Edit `config.json`
 4. Run the server (`node index.js`)
-
-## How to use on Windows (~~I should make this automatic~~)
-Same steps as above but in `config.json` change
-```json
-    "CStoNodePipe": "/var/tmp/CS2N.pipe",
-    "NodetoCSPipe": "/var/tmp/N2CS.pipe"
-```
-to
-```json
-    "CStoNodePipe": "\\\\.\\pipe\\CS2N.pipe",
-    "NodetoCSPipe": "\\\\.\\pipe\\N2CS.pipe"
-```
-##### I haven't tested this yet
