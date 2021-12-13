@@ -12,6 +12,7 @@ function wait(ms) {
     });
 }
 
+//excuse the bad code
 client.once('ready', async () => {
     bridgeChannel = await client.channels.fetch(config.bridgeChannel);
     bridgeChannel.send("Starting Node Server...");
