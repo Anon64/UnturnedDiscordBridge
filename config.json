@@ -1,4 +1,6 @@
 {
     "token": "<put token here>",
-    "bridgeChannel":"id of discord channel here"
+    "bridgeChannel":"id of discord channel here",
+    "CStoNodePipe": "/var/tmp/CS2N.pipe",
+    "NodetoCSPipe": "/var/tmp/N2CS.pipe"
 }
