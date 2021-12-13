@@ -6,34 +6,43 @@ const config = require('./config.json');
 const client = new Discord.Client({ intents: [Discord.Intents.FLAGS.GUILDS] });
 let bridgeChannel;
 
-//pardon this bad code
+function wait(ms) {
+    return new Promise(r => {
+        setTimeout(r, ms);
+    });
+}
+
 client.once('ready', async () => {
     bridgeChannel = await client.channels.fetch(config.bridgeChannel);
     bridgeChannel.send("Starting Node Server...");
     console.log(`Logging in as ${client.user.tag}`);
 
-    await bridgeChannel.send("Connected to Unturned Server!");
-
-    const wstream = fs.createWriteStream('/var/tmp/UDB.sock');
-    client.on('message', m => {
+    const wstream = fs.createWriteStream(config.NodetoCSPipe, { flags: 'r+' });
+    client.on('message', async m => {
         if (m.author.id == client.user.id) return;
         try {
-            let data = { User: m.member.displayName || m.member.nickname || m.author.username, Message: m.cleanContent, Color: m.member.displayHexColor };
+            let data = { User: m.member.displayName || m.member.nickname || m.author.username, Message: m.cleanContent, Color: m.member.displayHexColor.toUpperCase() };
+            wstream.cork();
             wstream.write(JSON.stringify(data) + '\n');
+            process.nextTick(() => wstream.uncork());
         } catch (e) {
             console.log(e);
         }
     });
 
-    const fd = fs.openSync('/var/tmp/UDB.sock', 'r+');
+    const fd = fs.openSync(config.CStoNodePipe, 'r+');
     const stream = fs.createReadStream(null, { fd });
+
     stream.on('data', async (d) => {
-        console.log(`data: ${d.toString()}`)
+        let line = d.toString();
+        console.log(`data: ${line}`);
         let event;
         try {
-            event = JSON.parse(d);
+            event = JSON.parse(line);
         } catch (e) {
+            return;
         }
+        if (!event.hasOwnProperty("type")) return;
         switch (event.type) {
             case "join":
                 await bridgeChannel.send(`**${event.user} joined the game**`);
@@ -51,14 +60,13 @@ client.once('ready', async () => {
     });
 
     async function handleShutdown() {
-        stream.close();
         stream.destroy();
-        wstream.close();
         wstream.destroy();
         await bridgeChannel.send("Stopping Node Server!");
+        process.kill(process.pid, 'SIGTERM');
         process.exit(0);
     }
-    process.on('SIGTERM', handleShutdown);
+
     process.on('SIGINT', handleShutdown);
 });
 
