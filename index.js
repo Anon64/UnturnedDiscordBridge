@@ -6,19 +6,20 @@ const config = require('./config.json');
 const client = new Discord.Client({ intents: [Discord.Intents.FLAGS.GUILDS] });
 let bridgeChannel;
 
-function wait(ms) {
+function wait(ms) { //not used??
     return new Promise(r => {
         setTimeout(r, ms);
     });
 }
 
-//excuse the bad code
+const pipePrefix = process.platform === 'win32' ? "\\\\.\\pipe\\" : "/var/tmp/";
+
 client.once('ready', async () => {
     bridgeChannel = await client.channels.fetch(config.bridgeChannel);
     bridgeChannel.send("Starting Node Server...");
     console.log(`Logging in as ${client.user.tag}`);
 
-    const wstream = fs.createWriteStream(config.NodetoCSPipe, { flags: 'r+' });
+    const wstream = fs.createWriteStream(pipePrefix + config.NodetoCSPipe, { flags: 'r+' });
     client.on('message', async m => {
         if (m.author.id == client.user.id) return;
         try {
@@ -31,12 +32,11 @@ client.once('ready', async () => {
         }
     });
 
-    const fd = fs.openSync(config.CStoNodePipe, 'r+');
+    const fd = fs.openSync(pipePrefix + config.CStoNodePipe, 'r+');
     const stream = fs.createReadStream(null, { fd });
 
     stream.on('data', async (d) => {
         let line = d.toString();
-        console.log(`data: ${line}`);
         let event;
         try {
             event = JSON.parse(line);
