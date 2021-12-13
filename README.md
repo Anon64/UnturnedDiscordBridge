@@ -18,6 +18,6 @@ Same steps as above but in `config.json` change
 ```
 to
 ```json
-    "CStoNodePipe": "\\.\pipe\CS2N.pipe",
-    "NodetoCSPipe": "\\.\pipe\N2CS.pipe"
+    "CStoNodePipe": "\\\\.\\pipe\\CS2N.pipe",
+    "NodetoCSPipe": "\\\\.\\pipe\\N2CS.pipe"
 ```
