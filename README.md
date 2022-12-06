@@ -9,3 +9,5 @@ Edit the config.yaml file in `plugins/Anon64.UnturnedDiscordBridge/config.yaml` 
 2. Extract to folder
 3. Edit `config.json`
 4. Run the server (`node index.js`)
+
+### Edit 2022-12-06: Archived due to lack of interest.
